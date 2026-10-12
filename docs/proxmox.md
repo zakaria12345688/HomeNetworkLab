@@ -44,7 +44,3 @@ Bij 16 GB RAM blijft ongeveer 3 GB vrij voor een lichte LXC-container. Het totaa
 - Bij elke VM *Start at boot* aan.
 - Opstartvolgorde: eerst de Windows Server (domeincontroller), daarna met vertraging de rest, omdat clients en Zabbix DNS en AD nodig hebben.
 - Afsluiten gaat via *Shutdown* in de webinterface, zodat VM's netjes afsluiten. Dat is vooral belangrijk voor de Active Directory-database.
-
-## Over de client-VM
-
-In een gewoon kantoor is een medewerker een fysieke pc. In dit lab vervangt de VM die pc, zoals in opleidingen en testomgevingen. In productie komen client-VM's voor bij VDI (Citrix, VMware Horizon, Azure Virtual Desktop), Windows 365 en testomgevingen. Het onderdeel wordt daarom benoemd als clientsimulatie.
