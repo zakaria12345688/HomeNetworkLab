@@ -26,12 +26,6 @@ Status: Proxmox VE 9.2-1 is geïnstalleerd en draait. Het VLAN-gedeelte volgt zo
 
 De bridge `vmbr0` is de virtuele switch in de server. Door hem VLAN-aware te maken, verwerkt Proxmox VLAN-tags. Elke VM krijgt een virtuele netwerkkaart met een VLAN-tag (*VM, Hardware, Network Device, VLAN Tag*). De VM weet zelf niets van VLAN's: Proxmox voegt de tag toe zodra het pakket de VM verlaat en haalt hem eraf bij binnenkomst.
 
-Drie plekken waar het meestal misgaat:
-
-1. De bridge staat niet op VLAN-aware.
-2. De switchpoort naar Proxmox heeft niet alle VLAN's tagged.
-3. De FortiGate mist een VLAN-interface voor dat nummer.
-
 ## Virtuele machines
 
 | VM | VLAN | Adres | RAM | Cores | Schijf |
