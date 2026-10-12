@@ -1,6 +1,8 @@
 # Home Network Lab
 
-Bedrijfsomgeving op kleine schaal, gebouwd na de opleiding systeem- en netwerkbeheer. Een gebruikte FortiGate 60E vormt de firewall en router, een beheerbare TP-Link-switch verdeelt het verkeer over vijf VLAN's en een Proxmox-server draait de virtuele machines (Active Directory, Linux, Windows 11 en Zabbix).
+Een kleinschalige bedrijfsomgeving, opgebouwd vanuit mijn passie voor systeem- en netwerkbeheer. De infrastructuur bestaat uit een gebruikte FortiGate 60E die fungeert als firewall en router, een beheerbare TP-Link-switch die het netwerk onderverdeelt in vijf VLAN’s en een Proxmox-server waarop verschillende virtuele machines draaien, waaronder Active Directory, Linux, Windows 11 en Zabbix.
+
+In de eerste fase maak ik gebruik van Tailscale VPN voor externe toegang. Ik documenteer de configuratie, de werking en de gemaakte keuzes. Zodra deze opstelling naar behoren functioneert en volledig gedocumenteerd is, schakel ik over naar een IPsec VPN-oplossing van Fortinet. Zo bouw ik stap voor stap een gestructureerde, veilige en goed gedocumenteerde IT-omgeving op, waarin ik mijn kennis van systeem- en netwerkbeheer verder kan ontwikkelen en in de praktijk kan toepassen.
 
 Het doel is praktijkervaring met netwerken, servers en beveiliging in één samenhangende omgeving, en dat aantoonbaar vastleggen.
 
@@ -11,6 +13,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 | Onderdeel | Status |
 |---|---|
 | Proxmox VE 9.2 op de server-laptop | Klaar |
+| Tailscale: Peer-to-peer mesh-netwerk (WireGuard) | Klaar |
 | FortiGate 60E: VLAN's, DHCP, firewallbeleid | Gepland (hardware besteld) |
 | VLAN's op de TL-SG108E | Gepland |
 | Active Directory, DNS, DHCP, GPO's | Gepland |
@@ -25,10 +28,10 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 ## Wat er gebouwd wordt
 
 - **Netwerk:** vijf VLAN's (beheer, servers, clients, gasten, thuis) met een trunk naar de FortiGate en firewallbeleid tussen de zones.
-- **Servers:** Windows Server 2022 met Active Directory, DNS, DHCP, Group Policies en een fileserver, plus een Linux-VM.
+- **Servers:** Windows Server 2025 met Active Directory, DNS, DHCP, Group Policies en een fileserver, plus een Linux-VM.
 - **Virtualisatie:** Proxmox VE met een VLAN-aware bridge, zodat VM's in verschillende VLAN's op één host draaien.
 - **Monitoring en back-up:** Zabbix met meldingen en een geteste restore.
-- **Toegang op afstand:** IPsec-VPN op de FortiGate, gekoppeld aan Active Directory.
+- **Toegang op afstand:** Tailscale-VPN/ IPsec-VPN op de FortiGate, gekoppeld aan Active Directory.
 
 ## Netwerkontwerp in het kort
 
@@ -76,8 +79,6 @@ De tekening staat in [diagrams/](diagrams/). `home-network.drawio` is bewerkbaar
 ## Mogelijke uitbreidingen
 
 - Tweede Proxmox-host voor een cluster met live migration.
-- Tweede, volledig beheerbare switch (Cisco Catalyst 2960 of SG300) om STP en EtherChannel te oefenen.
-- Access point met WPA2/WPA3-Enterprise en RADIUS (Windows NPS).
 - Site-to-site VPN naar een pfSense-VM.
 
 ## Veiligheid van deze repository
