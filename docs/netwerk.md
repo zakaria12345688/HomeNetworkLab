@@ -57,8 +57,6 @@ Poort 8 blijft op VLAN 1, zodat de beheerpagina van de switch bereikbaar blijft 
 | Trunk-poort | Draagt meerdere VLAN's over één kabel met 802.1Q-tags. | Poort 1 |
 | Trunk met native VLAN | Eén VLAN gaat untagged mee, de rest tagged. | Poort 2 (VLAN 10 untagged) |
 
-Op de TL-SG108E worden VLAN's op twee plekken ingesteld: bij **802.1Q VLAN** (tagged of untagged per poort) en bij **PVID** (het VLAN voor inkomend untagged verkeer). Wordt de PVID vergeten, dan zit een apparaat in het verkeerde VLAN. De VLAN-modi Port Based en MTU VLAN worden niet gebruikt, evenmin als QoS, IGMP snooping en LAG.
-
 ## Hoe verkeer loopt
 
 Een Windows 11-client (VLAN 30) wil een bestand van de domeincontroller (VLAN 20). Beide draaien op dezelfde Proxmox-host, maar het verkeer gaat toch via de firewall:
@@ -94,7 +92,3 @@ De FortiGate weigert standaard alles wat niet expliciet is toegestaan (implicit 
 | 8 | Deny-lab-naar-thuis | VLAN 10, 20, 30, 40 | VLAN 50 | Weigeren | Uit |
 
 Regel 7 en 8 komen in de praktijk boven regel 1 en 6. Er wordt gewerkt met adresobjecten (bijvoorbeeld `NET-Servers = 10.0.20.0/24`). Logging staat aan: Log Allowed Traffic bij toestaan-regels en Log Violation Traffic bij deny-regels.
-
-### Beperking zonder licentie
-
-Een gebruikt toestel heeft meestal geen actief FortiGuard-abonnement. Antivirus, IPS, webfilter en applicatiecontrole werken dan niet of zijn niet actueel. Routering, VLAN's, firewallbeleid, NAT, DHCP, logging en VPN werken wel en zijn voor dit project voldoende. Firmware-downloads bij Fortinet kunnen een account met supportcontract vragen, dus het toestel draait op de firmware die erop staat.
