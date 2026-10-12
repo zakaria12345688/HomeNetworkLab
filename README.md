@@ -7,6 +7,9 @@ In de eerste fase maak ik gebruik van Tailscale VPN voor externe toegang. Ik doc
 Het doel is praktijkervaring met netwerken, servers en beveiliging in één samenhangende omgeving, en dat aantoonbaar vastleggen.
 
 ![Topologie](diagrams/topologie.png)
+
+
+
 ![Topologie](diagrams/proxmox-topologie.png)
 ## Status
 
