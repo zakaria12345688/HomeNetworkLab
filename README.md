@@ -8,7 +8,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 
 ![Topologie](diagrams/topologie.svg)
 
-![Proxmox-topologie](diagrams/proxmox-topologie.svg)
+![Proxmox-topologie](diagrams/proxmox-topologie.png)
 
 ## Status
 
@@ -18,7 +18,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 | Tailscale: peer-to-peer mesh-netwerk (WireGuard) voor externe toegang | Klaar |
 | FortiGate 60E: VLAN's, DHCP, firewallbeleid | Gepland (hardware besteld) |
 | VLAN's op de TL-SG108E | Gepland |
-| Active Directory, DNS, DHCP, GPO's | Gepland |
+| Active Directory, DNS, GPO's | Gepland |
 | Windows 11-client aan het domein | Gepland |
 | Linux-VM | Gepland |
 | Zabbix-monitoring | Gepland |
@@ -30,7 +30,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 ## Wat er gebouwd wordt
 
 - **Netwerk:** vijf VLAN's (beheer, servers, clients, gasten, thuis) met een trunk naar de FortiGate en firewallbeleid tussen de zones.
-- **Servers:** Windows Server 2022 met Active Directory, DNS, DHCP, Group Policies en een fileserver, plus een Linux-VM.
+- **Servers:** Windows Server 2025 met Active Directory, DNS, Group Policies en een fileserver, plus een Linux-VM.
 - **Virtualisatie:** Proxmox VE met een VLAN-aware bridge, zodat VM's in verschillende VLAN's op één host draaien.
 - **Monitoring en back-up:** Zabbix met meldingen en een geteste restore.
 - **Toegang op afstand:** de werklaptop verbindt via VPN. Fase 1 is Tailscale, fase 2 is IPsec op de FortiGate, gekoppeld aan Active Directory.
@@ -46,7 +46,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 | 50 | Thuis | 10.0.50.0/24 | 10.0.50.1 | Desktop-pc, alleen internet |
 | - | VPN | Tailscale 100.x.y.z; IPsec-pool 10.0.99.0/24 (gepland) | - | Werklaptop op afstand |
 
-DHCP: de FortiGate deelt adressen uit in VLAN 10, 40 en 50. De Windows Server doet DHCP voor VLAN 30 (via DHCP-relay op de FortiGate). De servers in VLAN 20 hebben vaste IP's: AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`.
+DHCP: de FortiGate deelt adressen uit in VLAN 30, 40 en 50. VLAN 10 en 20 hebben vaste IP's: Proxmox `10.0.10.10`, AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`. Clients in VLAN 30 krijgen de Windows Server (`10.0.20.10`) als DNS-server.
 
 Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab.
 
@@ -69,15 +69,16 @@ De werklaptop heeft geen eigen switchpoort meer. Die verbindt via de VPN.
 | Oplossing | Tailscale (WireGuard) | IPsec-VPN van Fortinet |
 | Eindpunt | Proxmox-host (peer-to-peer) | De FortiGate zelf |
 | Adres werklaptop | Tailscale-IP 100.x.y.z | Adres uit de IPsec-pool 10.0.99.0/24 |
-| Toegang | Beheer (VLAN 10) | Beheer (VLAN 10), beperkt door firewallbeleid |
+| Bereikbaar | Alleen de Proxmox-host (webinterface, SSH) | De host én de VM's, beperkt door het firewallbeleid |
 | Authenticatie | Tailscale-account | Gekoppeld aan Active Directory |
 
-Tailscale draait niet op de FortiGate zelf. In fase 1 eindigt de tunnel daarom op de Proxmox-host. Pas in fase 2 eindigt de tunnel op de FortiGate.
+Tailscale draait niet op de FortiGate zelf. In fase 1 eindigt de tunnel daarom op de Proxmox-host en is alleen die host bereikbaar, niet de VM's. Pas in fase 2 eindigt de tunnel op de FortiGate en zijn ook de VM's bereikbaar.
 
 ### Firewallbeleid voor VPN
 
-- VPN → Beheer (VLAN 10): toegestaan.
-- VPN → overige VLAN's: standaard geweigerd, alleen openen waar nodig.
+- IPsec-VPN → Beheer, Servers en Clients (VLAN 10, 20, 30): toegestaan (fase 2).
+- IPsec-VPN → Gasten en Thuis (VLAN 40, 50): geweigerd.
+- Tailscale (fase 1) valt buiten het firewallbeleid.
 - Alles wat niet expliciet is toegestaan wordt geweigerd en gelogd.
 
 ## Hardware
@@ -94,7 +95,7 @@ Tailscale draait niet op de FortiGate zelf. In fase 1 eindigt de tunnel daarom o
 
 ## Software
 
-Proxmox VE 9.2, Windows Server 2022 en Windows 11 (evaluatieversies), Ubuntu Server, Zabbix, FortiOS, Tailscale, draw.io, PuTTY, Rufus.
+Proxmox VE 9.2, Windows Server 2025 en Windows 11 (evaluatieversies), Ubuntu Server, Zabbix, FortiOS, Tailscale, draw.io, PuTTY, Rufus.
 
 ## Documentatie
 
@@ -112,7 +113,7 @@ De tekening staat in [diagrams/](diagrams/). `home-network.drawio` is bewerkbaar
 - De TL-SG108E is een Easy Smart-switch: webinterface, geen CLI, geen configureerbare STP en geen 802.1X of SNMP.
 - Een gebruikte FortiGate heeft meestal geen actief FortiGuard-abonnement, dus IPS, antivirus en webfilter zijn niet beschikbaar. Routering, VLAN's, firewallbeleid, NAT, DHCP, logging en VPN werken wel.
 - Het lab draait op één host, dus er is geen hoge beschikbaarheid.
-- Zolang de werklaptop alleen via VPN verbindt, is er geen fysieke beheerpoort meer. Noodtoegang loopt via de reserve-laptop (poort 8) en de consolekabel.
+- Zolang de werklaptop alleen via VPN verbindt, is er geen fysieke beheerpoort meer. Noodtoegang loopt via de reserve-laptop (poort 8, vast IP in het netwerk van de switch) en de consolekabel, zie [netwerk.md](docs/netwerk.md#noodtoegang).
 
 ## Mogelijke uitbreidingen
 
