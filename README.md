@@ -8,7 +8,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 
 ![Topologie](diagrams/topologie.svg)
 
-![Proxmox-topologie](diagrams/proxmox-topologie.png)
+![Proxmox-topologie](diagrams/proxmox-topologie.svg)
 
 ## Status
 
@@ -45,6 +45,8 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 | 40 | Gasten | 10.0.40.0/24 | 10.0.40.1 | Alleen internet (nog geen apparaten) |
 | 50 | Thuis | 10.0.50.0/24 | 10.0.50.1 | Desktop-pc, alleen internet |
 | - | VPN | Tailscale 100.x.y.z; IPsec-pool 10.0.99.0/24 (gepland) | - | Werklaptop op afstand |
+
+DHCP: de FortiGate deelt adressen uit in VLAN 10, 40 en 50. De Windows Server doet DHCP voor VLAN 30 (via DHCP-relay op de FortiGate). De servers in VLAN 20 hebben vaste IP's: AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`.
 
 Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab.
 
