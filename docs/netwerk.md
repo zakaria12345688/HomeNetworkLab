@@ -54,6 +54,8 @@ De FortiGate is de DHCP-server. Er draait geen DHCP-rol op de Windows Server.
 
 Voor VLAN 30 geeft de FortiGate de Windows Server (10.0.20.10) als DNS-server mee. Zonder dat kan een Windows 11-client het domein niet vinden en dus niet toetreden. De Windows Server stuurt DNS-vragen naar buiten door voor alles wat niet bij het domein hoort.
 
+Zolang de Windows Server nog niet bestaat, krijgt VLAN 30 tijdelijk een publieke DNS-server mee (bijvoorbeeld `1.1.1.1`). Zodra Active Directory draait, wordt dit `10.0.20.10`. Er wordt bewust geen DHCP-relay gebruikt: de FortiGate blijft de enige DHCP-server.
+
 ## Poortindeling TL-SG108E
 
 | Poort      | Verbonden met          | VLAN-instelling                | PVID |
@@ -98,7 +100,7 @@ De werklaptop verbindt in twee fases. De twee oplossingen reiken niet even ver.
 | Firewallbeleid | Niet van toepassing, het verkeer loopt buiten de FortiGate om | Regel 10 |
 | Authenticatie | Tailscale-account | Gekoppeld aan Active Directory |
 
-**Tailscale is bewust beperkt tot de host.** Tailscale draait niet op de FortiGate en op de VM's staat het niet. Er worden geen subnet routes geadverteerd, dus de VM's, de FortiGate en de rest van het netwerk zijn via Tailscale niet bereikbaar. Een VM beheer je in fase 1 via de console in de Proxmox-webinterface.
+**Tailscale is bewust beperkt tot de host.** Tailscale draait niet op de FortiGate en op de VM's staat het niet. Er worden geen subnet routes geadverteerd, dus de VM's, de FortiGate en de rest van het netwerk zijn via Tailscale niet bereikbaar. Een VM beheer je in fase 1 via de console in de Proxmox-webinterface. De webinterface van de FortiGate bereik je in fase 1 via een SSH-tunnel door de Proxmox-host (`ssh -L 8443:10.0.10.1:443 <gebruiker>@<tailscale-ip-host>`), waarna je `https://localhost:8443` opent. Tailscale zelf routeert dan nog steeds niets.
 
 **De IPsec-VPN is voor het hele lab.** De tunnel eindigt op de FortiGate, dus de laptop kan daarachter de host én de VM's bereiken. Wat precies mag, bepaalt het firewallbeleid.
 
@@ -109,6 +111,7 @@ Tailscale maakt alleen een uitgaande verbinding vanaf de Proxmox-host naar buite
 Omdat de werklaptop geen fysieke poort meer heeft, zijn er twee noodroutes:
 
 - **Console op de FortiGate:** USB-naar-RJ45-consolekabel (FTDI) en PuTTY. Dit werkt altijd, ook zonder netwerk.
+- **Fysiek op een interne poort van de FortiGate:** zolang de interne interface beheertoegang houdt (`192.168.1.99`), kom je er met een laptop in een interne poort altijd in. Dit is een bewuste keuze en kan later worden uitgezet.
 - **Switchbeheer via poort 8:** de beheerpagina van de TL-SG108E zit op VLAN 1 en is alleen bereikbaar via poort 8. De FortiGate routeert VLAN 1 niet, dus de pagina is niet via het netwerk of de VPN te bereiken. Dat is een voordeel: de switch kan niet vanaf buiten worden beheerd.
 
 Om de switch via poort 8 te bereiken, krijgt de reserve-laptop een **vast IP in het netwerk van de switch**, bijvoorbeeld `192.168.0.10` met subnetmasker `255.255.255.0`. De standaardadres van de TL-SG108E is `192.168.0.1`. Controleer dit op jouw switch, want het kan zijn aangepast. Poort 8 blijft op VLAN 1, zodat de beheerpagina bereikbaar blijft als er bij het instellen van VLAN's iets misgaat.
@@ -119,7 +122,21 @@ De TL-SG108E biedt VLAN's (tagged en untagged), port mirroring en QoS. Hij biedt
 
 ## FortiGate
 
-Status: gepland, hardware besteld. De menu's en commando's gelden voor FortiOS 7.x.
+Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan op de FortiGate, de switch volgt. De menu's en commando's gelden voor FortiOS 6.4, de versie die op het apparaat staat. Het apparaat heeft geen actieve licenties, dus er zijn geen FortiGuard-updates en geen support.
+
+### Beheertoegang tot de FortiGate
+
+Alleen VLAN 10 (Beheer) mag de FortiGate beheren. Alle andere VLAN's krijgen geen toegang tot de webinterface of SSH.
+
+| Interface              | Toegestaan                         |
+| ---------------------- | ---------------------------------- |
+| wan1, wan2             | Alleen PING (geen HTTPS, SSH of FMG-Access) |
+| dmz (trunk)            | Niets                              |
+| vlan10 (Beheer)        | PING, HTTPS, SSH                   |
+| vlan20, 30, 40, 50     | Alleen PING                        |
+
+- Het beheer van de FortiGate loopt niet via het firewallbeleid, maar via de beheertoegang per interface. Daarom is een deny-regel voor VLAN 50 niet genoeg: HTTPS op vlan50 moet echt uit.
+- De admin-account krijgt als *Trusted Host* `10.0.10.0/24`, en bij fase 2 ook de IPsec-pool `10.0.99.0/24`. Dit wordt pas ingesteld nadat het beheer vanaf VLAN 10 getest is, anders sluit je jezelf buiten.
 
 ### Firewallbeleid
 

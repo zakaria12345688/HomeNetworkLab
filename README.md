@@ -8,7 +8,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 
 ![Topologie](diagrams/topologie.svg)
 
-![Proxmox-topologie](diagrams/proxmox-topologie.svg)
+![Proxmox-topologie](diagrams/proxmox-topologie.png)
 
 ## Status
 
@@ -16,7 +16,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 |---|---|
 | Proxmox VE 9.2 op de server-laptop | Klaar |
 | Tailscale: peer-to-peer mesh-netwerk (WireGuard) voor externe toegang | Klaar |
-| FortiGate 60E: VLAN's, DHCP, firewallbeleid | Gepland (hardware besteld) |
+| FortiGate 60E: VLAN's, DHCP, firewallbeleid | Bezig |
 | VLAN's op de TL-SG108E | Gepland |
 | Active Directory, DNS, GPO's | Gepland |
 | Windows 11-client aan het domein | Gepland |
