@@ -8,7 +8,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 
 ![Topologie](diagrams/topologie.svg)
 
-![Proxmox-topologie](diagrams/proxmox-topologie.png)
+![Proxmox-topologie](diagrams/proxmox-topologie.svg)
 
 ## Status
 
