@@ -17,7 +17,7 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 | Proxmox VE 9.2 op de server-laptop | Klaar |
 | Tailscale: peer-to-peer mesh-netwerk (WireGuard) voor externe toegang | Klaar |
 | FortiGate 60E: VLAN's, DHCP, firewallbeleid | Bezig |
-| VLAN's op de TL-SG108E | Gepland |
+| VLAN's op de TL-SG108E | Bezig |
 | Active Directory, DNS, GPO's | Gepland |
 | Windows 11-client aan het domein | Gepland |
 | Linux-VM | Gepland |
@@ -46,7 +46,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 | 50 | Thuis | 10.0.50.0/24 | 10.0.50.1 | Desktop-pc, alleen internet |
 | - | VPN | Tailscale 100.x.y.z; IPsec-pool 10.0.99.0/24 (gepland) | - | Werklaptop op afstand |
 
-DHCP: de FortiGate deelt adressen uit in VLAN 30, 40 en 50. VLAN 10 en 20 hebben vaste IP's: Proxmox `10.0.10.10`, AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`. Clients in VLAN 30 krijgen de Windows Server (`10.0.20.10`) als DNS-server.
+DHCP: de FortiGate deelt adressen uit in VLAN 30, 40 en 50. VLAN 10 en 20 hebben vaste IP's: Proxmox `10.0.10.10`, AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`. Clients in VLAN 30 krijgen de Windows Server (`10.0.20.10`) als DNS-server, tijdelijk `1.1.1.1` totdat Active Directory draait.
 
 Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab.
 
@@ -102,11 +102,12 @@ Proxmox VE 9.2, Windows Server 2025 en Windows 11 (evaluatieversies), Ubuntu Ser
 | Document | Inhoud |
 |---|---|
 | [Netwerkontwerp](docs/netwerk.md) | VLAN-plan, IP-schema, poortindeling, trunk en access, firewallbeleid |
+| [FortiGate](docs/fortigate.md) | Configuratie met screenshots en de gemaakte keuzes |
 | [Proxmox](docs/proxmox.md) | Installatie, VLAN-aware bridge, virtuele machines |
-| [VPN](docs/vpn.md) | Tailscale-configuratie, later IPsec op de FortiGate |
+| VPN (nog te schrijven) | Tailscale-configuratie, later IPsec op de FortiGate |
 | [Problemen en oplossingen](docs/troubleshooting.md) | Wat misging en hoe het is opgelost |
 
-De tekening staat in [diagrams/](diagrams/). `home-network.drawio` is bewerkbaar in draw.io.
+De tekening staat in [diagrams/](diagrams/). `home-network.drawio` en `proxmox-topologie.drawio` zijn bewerkbaar in draw.io.
 
 ## Beperkingen
 

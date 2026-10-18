@@ -1,0 +1,19 @@
+# Configuratie-backups en sleutels: nooit committen
+*.conf
+*.backup
+*.bak
+*.cfg
+*.key
+*.pem
+*.pfx
+*.ovpn
+*.kdbx
+
+# Bestanden met geheimen of persoonlijke gegevens
+.env
+secrets*
+wachtwoorden*
+
+# Systeembestanden
+.DS_Store
+Thumbs.db

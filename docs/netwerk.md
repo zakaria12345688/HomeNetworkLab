@@ -62,7 +62,7 @@ Zolang de Windows Server nog niet bestaat, krijgt VLAN 30 tijdelijk een publieke
 | ---------- | ---------------------- | ------------------------------ | ---- |
 | 1          | FortiGate (DMZ), trunk | Tagged 10, 20, 30, 40, 50      | 1    |
 | 2          | Proxmox-server         | Untagged 10, tagged 20, 30, 40 | 10   |
-| 3, 5, 6, 7 | Niet in gebruik        | -                              | -    |
+| 3, 5, 6, 7 | Niet in gebruik        | Untagged 1 (standaard)         | 1    |
 | 4          | Desktop-pc             | Untagged 50                    | 50   |
 | 8          | Reserve (switchbeheer) | Untagged 1                     | 1    |
 
@@ -108,7 +108,7 @@ Tailscale maakt alleen een uitgaande verbinding vanaf de Proxmox-host naar buite
 
 ## Noodtoegang
 
-Omdat de werklaptop geen fysieke poort meer heeft, zijn er twee noodroutes:
+Omdat de werklaptop geen fysieke poort meer heeft, zijn er drie noodroutes:
 
 - **Console op de FortiGate:** USB-naar-RJ45-consolekabel (FTDI) en PuTTY. Dit werkt altijd, ook zonder netwerk.
 - **Fysiek op een interne poort van de FortiGate:** zolang de interne interface beheertoegang houdt (`192.168.1.99`), kom je er met een laptop in een interne poort altijd in. Dit is een bewuste keuze en kan later worden uitgezet.
@@ -163,4 +163,5 @@ Opmerkingen bij het beleid:
 - Regel 10 is alleen actief in fase 2. De VPN heeft geen toegang tot Gasten (VLAN 40) en Thuis (VLAN 50).
 - Tailscale (fase 1) valt buiten dit beleid. Het verkeer gaat tussen de laptop en de Proxmox-host via een uitgaande verbinding, toegestaan door regel 4.
 - DHCP-verkeer van de clients naar de FortiGate zelf hoeft niet in het beleid, omdat de FortiGate dat zelf afhandelt.
-- Er wordt gewerkt met adresobjecten (bijvoorbeeld `NET-Servers = 10.0.20.0/24`). Logging staat aan: Log Allowed Traffic bij toestaan-regels en Log Violation Traffic bij deny-regels.
+- De regels filteren nu op interface (VLAN). Als bron en bestemming staat overal `all`. Later vervang ik dat door adresobjecten per VLAN (bijvoorbeeld `NET-Servers = 10.0.20.0/24`) en beperk ik de services.
+- Logging staat aan op alle sessies, ook bij de deny-regels.
