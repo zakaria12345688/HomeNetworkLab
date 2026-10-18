@@ -39,7 +39,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 
 | VLAN | Naam | Netwerk | Gateway | Gebruik |
 |---|---|---|---|---|
-| 10 | Beheer | 10.0.10.0/24 | 10.0.10.1 | Proxmox-beheer, werklaptop (via VPN) |
+| 10 | Beheer | 10.0.10.0/24 | 10.0.10.1 | Proxmox-beheer, FortiGate-beheer |
 | 20 | Servers | 10.0.20.0/24 | 10.0.20.1 | Active Directory, Linux, Zabbix |
 | 30 | Clients | 10.0.30.0/24 | 10.0.30.1 | Windows 11 client-VM's |
 | 40 | Gasten | 10.0.40.0/24 | 10.0.40.1 | Alleen internet (nog geen apparaten) |
@@ -49,6 +49,8 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 DHCP: de FortiGate deelt adressen uit in VLAN 30, 40 en 50. VLAN 10 en 20 hebben vaste IP's: Proxmox `10.0.10.10`, AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`. Clients in VLAN 30 krijgen de Windows Server (`10.0.20.10`) als DNS-server, tijdelijk `1.1.1.1` totdat Active Directory draait.
 
 Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab, op één uitzondering na: hij mag Proxmox beheren (zie [uitzondering](docs/desktop-naar-proxmox.md)).
+
+De werklaptop zit in geen enkel VLAN. In fase 1 (Tailscale) bereikt hij alleen de Proxmox-host, die toevallig in VLAN 10 staat. Het VLAN zelf en de rest van het lab zijn pas in fase 2 (IPsec) bereikbaar.
 
 ### Switchpoorten (TL-SG108E)
 
@@ -79,7 +81,15 @@ Tailscale draait niet op de FortiGate zelf. In fase 1 eindigt de tunnel daarom o
 - IPsec-VPN → Beheer, Servers en Clients (VLAN 10, 20, 30): toegestaan (fase 2).
 - IPsec-VPN → Gasten en Thuis (VLAN 40, 50): geweigerd.
 - Tailscale (fase 1) valt buiten het firewallbeleid.
-- Alles wat niet expliciet is toegestaan wordt geweigerd en gelogd.
+- Alles wat niet expliciet is toegestaan wordt geweigerd. Alleen de impliciete deny onderaan logt dat niet zelf, zie [Let op bij screenshots en logging](#let-op-bij-screenshots-en-logging).
+
+## Let op bij screenshots en logging
+
+De screenshots zijn genomen terwijl ik bezig was en worden niet opnieuw gemaakt. Daardoor kunnen ze een eerdere situatie tonen of afwijken van de tekst. De tekst en tabellen beschrijven het ontwerp en de huidige stand. Dit zijn de bekende verschillen:
+
+- **Volgorde van de deny-regels.** Het ontwerp zet de deny-regels voor Thuis (VLAN 50) bovenaan, zodat geen enkele toestaan-regel eronder ze kan omzeilen. In sommige screenshots staan ze lager in de lijst, onder `Thuis-internet`, en heten ze `thuis-naar-lab` en `lab-naar-thuis` (kleine letters, zonder `Deny-`). Dat werkt nu hetzelfde, omdat de regels daarboven een andere bestemming hebben en elkaar dus niet overlappen. Zodra er een regel bijkomt die wel overlapt, bijvoorbeeld de VPN-regel, moeten de deny-regels bovenaan staan. De nummers in de tabel in [netwerk.md](docs/netwerk.md#firewallbeleid) zijn de volgorde in het ontwerp, niet de policy-ID's van de FortiGate.
+- **Interfaces die rood of oranje zijn.** Op oudere screenshots zijn de VLAN-interfaces rood (down) en hebben de regels een oranje driehoekje. Dat was zo toen de switch er nog niet aan hing. Nu hangt hij er wel aan en zijn ze up.
+- **Logging.** De eigen deny-regels loggen alle sessies. De impliciete deny onderaan (alles wat nergens op past) staat standaard op de FortiGate op *Disabled* en logt dus niet. Dat heb ik zo gelaten. `Intern-noodtoegang` logt alleen UTM-events, niet alle sessies, want die regel verdwijnt later. Geblokkeerd verkeer dat door een eigen deny-regel wordt geraakt, zie je wel in het log.
 
 ## Hardware
 

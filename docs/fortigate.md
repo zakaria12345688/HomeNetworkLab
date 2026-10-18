@@ -2,7 +2,9 @@
 
 Hier leg ik vast hoe ik de FortiGate heb ingesteld en waarom ik bepaalde keuzes heb gemaakt. Het ontwerp zelf (VLAN-plan, IP-schema, firewallbeleid) staat in [netwerk.md](netwerk.md). Dit document laat zien hoe dat in de praktijk is uitgevoerd.
 
-Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan. De switch en de trunk volgen.
+Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan. De switch hangt eraan en de trunk naar poort 1 werkt: de desktop-pc (VLAN 50) bereikt Proxmox (VLAN 10) via de FortiGate.
+
+**Let op bij de screenshots.** De screenshots in dit document zijn genomen tijdens het bouwen en worden niet opnieuw gemaakt. De eerste tonen nog de situatie zonder switch (rode VLAN-interfaces, oranje driehoekjes). In sommige latere screenshots staan de deny-regels lager in de lijst dan het ontwerp. De uitleg staat in de [README](../README.md#let-op-bij-screenshots-en-logging).
 
 ## 1. Beginsituatie
 
@@ -44,7 +46,7 @@ Waarom zo:
 - De FortiGate hangt via de modem aan internet. Met een oude firmware wil ik de beheerpagina niet vanaf buiten bereikbaar hebben, dus op WAN staat geen HTTPS, SSH of FMG-Access.
 - **Alleen VLAN 10 mag beheren.** Eerst had vlan50 ook HTTPS, zodat ik vanaf de desktop-pc kon werken. Dat heb ik teruggedraaid, want Thuis moet los blijven van het lab. Een deny-regel is daarvoor niet genoeg: beheer loopt niet via het firewallbeleid, maar via de toegang per interface.
 
-**Wat er nog staat.** De interne interface (`192.168.1.99`) laat ik voorlopig zoals hij is, als fysieke noodtoegang tijdens het bouwen. HTTP heb ik daar uitgezet. De VLAN-interfaces zijn rood (down) omdat de switch er nog niet aan hangt. Dat is normaal.
+**Wat er nog staat.** De interne interface (`192.168.1.99`) laat ik voorlopig zoals hij is, als fysieke noodtoegang tijdens het bouwen. HTTP heb ik daar uitgezet. Op het screenshot hierboven zijn de VLAN-interfaces rood (down), omdat de switch er toen nog niet aan hing. Dat was normaal. Inmiddels hangt de switch eraan en zijn ze up. Let ook op de interne interface: daar staan FMG-Access en Security Fabric Connection nog aan (zie Nog te doen).
 
 WAN1 krijgt van de modem een privéadres (`192.168.129.54`). De modem doet dus zelf ook NAT. Ik heb daarom `10.0.x.x` gekozen, zodat de adresbereiken niet botsen.
 
@@ -64,14 +66,14 @@ De FortiGate deelt de adressen uit in VLAN 30, 40 en 50, met de range `.100` t/m
 
 De volledige tabel met de regels staat in [netwerk.md](netwerk.md#firewallbeleid). Dit zijn de keuzes die ik heb gemaakt:
 
-- **Deny-regels bovenaan.** De FortiGate leest van boven naar beneden en de eerste passende regel wint. Met `Deny-thuis-naar-lab` en `Deny-lab-naar-thuis` bovenaan kan geen enkele toestaan-regel eronder Thuis (VLAN 50) en het lab met elkaar verbinden. Daardoor kan ook Beheer niet bij VLAN 50.
+- **Deny-regels bovenaan.** De FortiGate leest van boven naar beneden en de eerste passende regel wint. Met `Deny-thuis-naar-lab` en `Deny-lab-naar-thuis` bovenaan kan geen enkele toestaan-regel eronder Thuis (VLAN 50) en het lab met elkaar verbinden. Daardoor kan ook Beheer niet bij VLAN 50. Op sommige latere screenshots staan deze twee regels lager, onder `Thuis-internet`, en heten ze `thuis-naar-lab` en `lab-naar-thuis`. Dat werkt nu hetzelfde, want de regels erboven hebben een andere bestemming. Het ontwerp blijft: deny bovenaan.
 - **NAT alleen naar internet.** Bij `Beheer-naar-lab` en `Clients-naar-servers` staat NAT uit, omdat dat intern verkeer is. Alleen de regels naar `wan1` hebben NAT aan.
 - **Elke regel apart.** Ik had de internetregels kunnen samenvoegen, maar ik laat ze gescheiden, zodat ik later per zone iets kan aanpassen.
-- **Logging op alle sessies**, zodat ik straks kan zien wat er geblokkeerd of toegestaan wordt.
-- **Impliciete deny onderaan.** Alles wat niet expliciet is toegestaan, wordt geweigerd.
+- **Logging op alle sessies** bij mijn eigen regels, zodat ik straks kan zien wat er geblokkeerd of toegestaan wordt. `Intern-noodtoegang` logt alleen UTM-events.
+- **Impliciete deny onderaan.** Alles wat niet expliciet is toegestaan, wordt geweigerd. Deze regel logt zelf niet (standaard *Disabled*). Dat laat ik zo. Mijn eigen deny-regels loggen wel.
 - **`Intern-noodtoegang`.** Dit is de standaardregel van de FortiGate (`internal` naar `wan1`) die ik een naam heb gegeven. Ik heb hem nodig om met mijn laptop op de interne poort online te blijven. Zodra de switch, de trunk en de tests werken, zet ik hem eerst op *disabled* en verwijder ik hem daarna eventueel. De VLAN's hebben hun eigen internetregels en blijven werken. Mijn toegang tot `192.168.1.99` hangt niet van deze regel af.
 
-De oranje driehoekjes naast de regels komen doordat de VLAN-interfaces nog down zijn.
+De oranje driehoekjes naast de regels kwamen doordat de VLAN-interfaces toen nog down waren. Dat is inmiddels opgelost.
 
 ## 5. Voorbeeld: één regel in detail
 
@@ -83,11 +85,14 @@ De oranje driehoekjes naast de regels komen doordat de VLAN-interfaces nog down 
 
 Ik heb één regel toegevoegd waarmee de desktop-pc (`10.0.50.10`) Proxmox (`10.0.10.10`) kan beheren. Dat is een bewuste uitzondering op "Thuis blijft los van het lab", zolang mijn werklaptop nog geen VPN naar het lab heeft. De regel staat boven de deny-regels en is beperkt tot PING, SSH en poort 8006. Details, keuzes en tests staan in [desktop-naar-proxmox.md](desktop-naar-proxmox.md).
 
+## Gedaan sinds de eerste screenshots
+
+- Switch ingesteld (VLAN's, PVID's) en de kabel van de DMZ naar poort 1 gestoken.
+- Getest met de desktop-pc op poort 4: adres `10.0.50.10`, ping naar Proxmox via de FortiGate en een geblokkeerde verbinding naar `10.0.20.10` in het log. De details staan in [desktop-naar-proxmox.md](desktop-naar-proxmox.md).
+
 ## Nog te doen
 
 - Op de interne interface FMG-Access en Security Fabric Connection uitzetten.
-- Switch instellen (VLAN's, PVID's) en de kabel van de DMZ naar poort 1 steken.
-- Testen met de desktop-pc op poort 4: adres `10.0.50.x`, ping naar de gateway en naar internet, en een geblokkeerde verbinding terugzien in de logs.
 - Beheer vanaf VLAN 10 testen en daarna *Trusted Hosts* instellen op het admin-account (`10.0.10.0/24`). Dit doe ik pas na de test, anders sluit ik mezelf buiten.
 - `Intern-noodtoegang` uitzetten.
 - `Desktop-naar-Proxmox` verwijderen zodra de IPsec-VPN werkt.

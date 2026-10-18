@@ -48,7 +48,7 @@ De FortiGate is de DHCP-server. Er draait geen DHCP-rol op de Windows Server.
 | ---- | ------------------- | ------------------------- | ------------------------------- |
 | 10   | Nee, vaste adressen | -                         | -                               |
 | 20   | Nee, vaste adressen | -                         | -                               |
-| 30   | FortiGate           | 10.0.30.100 - 10.0.30.200 | 10.0.20.10 (Active Directory)   |
+| 30   | FortiGate           | 10.0.30.100 - 10.0.30.200 | Nu `1.1.1.1` (tijdelijk), later 10.0.20.10 (Active Directory) |
 | 40   | FortiGate           | 10.0.40.100 - 10.0.40.200 | Via de FortiGate                |
 | 50   | FortiGate           | 10.0.50.100 - 10.0.50.200 | Via de FortiGate                |
 
@@ -82,7 +82,7 @@ Een Windows 11-client (VLAN 30) wil een bestand van de domeincontroller (VLAN 20
 
 1. De client stuurt het verzoek naar zijn gateway, de FortiGate (10.0.30.1).
 2. Proxmox voegt VLAN-tag 30 toe en stuurt het via de trunk naar de switch en de FortiGate.
-3. De FortiGate controleert het beleid: clients naar servers is toegestaan (regel 6).
+3. De FortiGate controleert het beleid: clients naar servers is toegestaan (regel `Clients-naar-servers`).
 4. De FortiGate stuurt het verkeer terug met tag 20. Proxmox haalt de tag eraf en levert het aan de domeincontroller.
 
 Dit is *router on a stick*: één kabel met meerdere VLAN's en een router die ertussen routeert. Het voordeel is dat de firewall al het verkeer tussen zones ziet, ook als de VM's naast elkaar op één host draaien.
@@ -97,14 +97,14 @@ De werklaptop verbindt in twee fases. De twee oplossingen reiken niet even ver.
 | Tunnel eindigt op | De Proxmox-host | De FortiGate |
 | Adres werklaptop | Tailscale-IP 100.x.y.z | Adres uit de pool 10.0.99.0/24 |
 | Bereikbaar | **Alleen de Proxmox-host** (webinterface op poort 8006, SSH) | **De host én de VM's**: beheer, servers en clients, volgens het firewallbeleid |
-| Firewallbeleid | Niet van toepassing, het verkeer loopt buiten de FortiGate om | Regel 10 |
+| Firewallbeleid | Niet van toepassing, het verkeer loopt buiten de FortiGate om | Regel `VPN-naar-lab` |
 | Authenticatie | Tailscale-account | Gekoppeld aan Active Directory |
 
 **Tailscale is bewust beperkt tot de host.** Tailscale draait niet op de FortiGate en op de VM's staat het niet. Er worden geen subnet routes geadverteerd, dus de VM's, de FortiGate en de rest van het netwerk zijn via Tailscale niet bereikbaar. Een VM beheer je in fase 1 via de console in de Proxmox-webinterface. De webinterface van de FortiGate bereik je in fase 1 via een SSH-tunnel door de Proxmox-host (`ssh -L 8443:10.0.10.1:443 <gebruiker>@<tailscale-ip-host>`), waarna je `https://localhost:8443` opent. Tailscale zelf routeert dan nog steeds niets.
 
 **De IPsec-VPN is voor het hele lab.** De tunnel eindigt op de FortiGate, dus de laptop kan daarachter de host én de VM's bereiken. Wat precies mag, bepaalt het firewallbeleid.
 
-Tailscale maakt alleen een uitgaande verbinding vanaf de Proxmox-host naar buiten. Daarom moet VLAN 10 naar internet mogen (regel 4).
+Tailscale maakt alleen een uitgaande verbinding vanaf de Proxmox-host naar buiten. Daarom moet VLAN 10 naar internet mogen (regel `Beheer-internet`).
 
 ## Noodtoegang
 
@@ -126,12 +126,13 @@ Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan op de FortiG
 
 ### Beheertoegang tot de FortiGate
 
-Alleen VLAN 10 (Beheer) mag de FortiGate beheren. Alle andere VLAN's krijgen geen toegang tot de webinterface of SSH.
+Van alle VLAN's mag alleen VLAN 10 (Beheer) de FortiGate beheren. De andere VLAN's krijgen geen toegang tot de webinterface of SSH. Daarnaast is er tijdelijk de interne interface als fysieke noodtoegang (zie de tabel).
 
 | Interface              | Toegestaan                         |
 | ---------------------- | ---------------------------------- |
 | wan1, wan2             | Alleen PING (geen HTTPS, SSH of FMG-Access) |
 | dmz (trunk)            | Alleen PING (geen IP-adres, geen beheer) |
+| internal (192.168.1.99) | PING, HTTPS, SSH, FMG-Access en Security Fabric Connection. Tijdelijke fysieke noodtoegang tijdens het bouwen. FMG-Access en Security Fabric Connection gaan nog uit. |
 | vlan10 (Beheer)        | PING, HTTPS, SSH                   |
 | vlan20, 30, 40, 50     | Alleen PING                        |
 
@@ -142,27 +143,31 @@ Alleen VLAN 10 (Beheer) mag de FortiGate beheren. Alle andere VLAN's krijgen gee
 
 De FortiGate weigert standaard alles wat niet expliciet is toegestaan (implicit deny). Het beleid wordt van boven naar beneden gelezen en de eerste passende regel wint. Daarom staan de deny-regels bovenaan en de brede toestaan-regels daaronder.
 
-| Nr | Naam                 | Van                 | Naar                     | Actie    | NAT              |
-| -- | -------------------- | ------------------- | ------------------------ | -------- | ---------------- |
-| 1  | Deny-thuis-naar-lab  | VLAN 50             | VLAN 10, 20, 30, 40      | Weigeren | Uit              |
-| 2  | Deny-lab-naar-thuis  | VLAN 10, 20, 30, 40 | VLAN 50                  | Weigeren | Uit              |
-| 3  | Beheer-naar-lab      | VLAN 10             | VLAN 20, 30, 40          | Toestaan | Uit              |
-| 4  | Beheer-internet      | VLAN 10             | wan1                     | Toestaan | Aan              |
-| 5  | Servers-internet     | VLAN 20             | wan1                     | Toestaan | Aan              |
-| 6  | Clients-naar-servers | VLAN 30             | VLAN 20                  | Toestaan | Uit              |
-| 7  | Clients-internet     | VLAN 30             | wan1                     | Toestaan | Aan              |
-| 8  | Gasten-internet      | VLAN 40             | wan1                     | Toestaan | Aan              |
-| 9  | Thuis-internet       | VLAN 50             | wan1                     | Toestaan | Aan              |
-| 10 | VPN-naar-lab (fase 2) | IPsec-tunnel (10.0.99.0/24) | VLAN 10, 20, 30 | Toestaan | Uit              |
+| Nr | Naam                  | Van                         | Naar                | Actie    | NAT  |
+| -- | --------------------- | --------------------------- | ------------------- | -------- | ---- |
+| 1  | Intern-noodtoegang (tijdelijk) | internal           | wan1                | Toestaan | Aan  |
+| 2  | Desktop-naar-Proxmox (uitzondering) | VLAN 50 (alleen `10.0.50.10`) | VLAN 10 (alleen `10.0.10.10`) | Toestaan | Uit |
+| 3  | Deny-thuis-naar-lab   | VLAN 50                     | VLAN 10, 20, 30, 40 | Weigeren | Uit  |
+| 4  | Deny-lab-naar-thuis   | VLAN 10, 20, 30, 40         | VLAN 50             | Weigeren | Uit  |
+| 5  | Beheer-naar-lab       | VLAN 10                     | VLAN 20, 30, 40     | Toestaan | Uit  |
+| 6  | Beheer-internet       | VLAN 10                     | wan1                | Toestaan | Aan  |
+| 7  | Servers-internet      | VLAN 20                     | wan1                | Toestaan | Aan  |
+| 8  | Clients-naar-servers  | VLAN 30                     | VLAN 20             | Toestaan | Uit  |
+| 9  | Clients-internet      | VLAN 30                     | wan1                | Toestaan | Aan  |
+| 10 | Gasten-internet       | VLAN 40                     | wan1                | Toestaan | Aan  |
+| 11 | Thuis-internet        | VLAN 50                     | wan1                | Toestaan | Aan  |
+| 12 | VPN-naar-lab (fase 2) | IPsec-tunnel (10.0.99.0/24) | VLAN 10, 20, 30     | Toestaan | Uit  |
+
+De nummers zijn de volgorde in het ontwerp, niet de policy-ID's van de FortiGate. In sommige screenshots staan de deny-regels (regel 3 en 4) lager in de lijst en heten ze `thuis-naar-lab` en `lab-naar-thuis`. Zie [Let op bij screenshots en logging](../README.md#let-op-bij-screenshots-en-logging) in de README.
 
 Opmerkingen bij het beleid:
 
-- Regel 1 en 2 houden Thuis (VLAN 50) volledig los van het lab, in beide richtingen. Ze staan bovenaan, zodat geen enkele toestaan-regel eronder dit kan omzeilen. Daardoor kan ook Beheer niet bij VLAN 50.
+- Regel 3 en 4 (`Deny-thuis-naar-lab` en `Deny-lab-naar-thuis`) houden Thuis (VLAN 50) volledig los van het lab, in beide richtingen. Ze staan in het ontwerp boven alle gewone toestaan-regels, zodat geen enkele toestaan-regel eronder dit kan omzeilen. Daardoor kan ook Beheer niet bij VLAN 50.
 - Antwoordverkeer op toegestane verbindingen wordt automatisch doorgelaten (stateful), daarvoor is geen aparte regel nodig.
-- Naast deze regels staat bovenaan de regel `Intern-noodtoegang` (interne poorten naar wan1, NAT aan). Die is bedoeld voor het bouwen van het lab en wordt later uitgezet of verwijderd. De beheertoegang op de interne interface (`192.168.1.99`) blijft als fysieke noodtoegang bestaan zolang ik dat wil.
-- Er staat één bewuste uitzondering boven de deny-regels: `Desktop-naar-Proxmox` (alleen `10.0.50.10` naar `10.0.10.10`, services PING, SSH en TCP 8006). Zie [desktop-naar-proxmox.md](desktop-naar-proxmox.md). Ik verwijder deze regel zodra de IPsec-VPN werkt.
-- Regel 10 is alleen actief in fase 2. De VPN heeft geen toegang tot Gasten (VLAN 40) en Thuis (VLAN 50).
-- Tailscale (fase 1) valt buiten dit beleid. Het verkeer gaat tussen de laptop en de Proxmox-host via een uitgaande verbinding, toegestaan door regel 4.
+- `Intern-noodtoegang` (regel 1: interne poorten naar wan1, NAT aan) is bedoeld voor het bouwen van het lab en wordt later uitgezet of verwijderd. De beheertoegang op de interne interface (`192.168.1.99`) blijft als fysieke noodtoegang bestaan zolang ik dat wil.
+- Regel 2 is de enige bewuste uitzondering boven de deny-regels: `Desktop-naar-Proxmox` (alleen `10.0.50.10` naar `10.0.10.10`, services PING, SSH en TCP 8006). Zie [desktop-naar-proxmox.md](desktop-naar-proxmox.md). Ik verwijder deze regel zodra de IPsec-VPN werkt.
+- Regel 12 is alleen actief in fase 2. De VPN heeft geen toegang tot Gasten (VLAN 40) en Thuis (VLAN 50).
+- Tailscale (fase 1) valt buiten dit beleid. Het verkeer gaat tussen de laptop en de Proxmox-host via een uitgaande verbinding, toegestaan door `Beheer-internet` (regel 6).
 - DHCP-verkeer van de clients naar de FortiGate zelf hoeft niet in het beleid, omdat de FortiGate dat zelf afhandelt.
 - De regels filteren nu op interface (VLAN). Als bron en bestemming staat overal `all`. Later vervang ik dat door adresobjecten per VLAN (bijvoorbeeld `NET-Servers = 10.0.20.0/24`) en beperk ik de services.
-- Logging staat aan op alle sessies, ook bij de deny-regels.
+- Logging staat aan op alle sessies van de eigen regels, ook bij de deny-regels. Twee uitzonderingen: `Intern-noodtoegang` logt alleen UTM-events, en de impliciete deny onderaan staat op *Disabled* en logt niet. Zie de README.

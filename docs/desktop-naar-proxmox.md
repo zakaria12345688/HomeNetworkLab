@@ -9,18 +9,18 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 | Naam | `Desktop-naar-Proxmox` |
 | Van, naar | vlan50 naar vlan10 |
 | Bron | `PC-Desktop` (`10.0.50.10/32`) |
-| Bestemming | `Proxmox-host` (`10.0.10.10/32`) |
+| Bestemming | `proxmox-host` (`10.0.10.10/32`) |
 | Services | PING, SSH, `Proxmox-GUI` (TCP 8006) |
 | Actie | Accept |
 | NAT | Uit |
 | Logging | Alle sessies |
-| Positie | Boven `Deny-thuis-naar-lab` |
+| Positie | Boven `Deny-thuis-naar-lab` (op de screenshots heet die regel `thuis-naar-lab`) |
 
 ![De policy Desktop-naar-Proxmox](images/desktop-proxmox-01-policy.png)
 
 ## Zo heb ik het gedaan
 
-1. Bij *Policy & Objects → Addresses* twee adresobjecten aangemaakt: `PC-Desktop` en `Proxmox-host`, allebei als `/32`.
+1. Bij *Policy & Objects → Addresses* twee adresobjecten aangemaakt: `PC-Desktop` en `proxmox-host`, allebei als `/32`.
 
    ![Adresobjecten](images/desktop-proxmox-02-adressen.png)
 
@@ -36,7 +36,7 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 
 - **Boven de deny-regel.** De FortiGate leest van boven naar beneden en de eerste passende regel wint. Staat de regel eronder, dan wordt hij nooit bereikt.
 - **Alleen deze pc, deze host en deze services.** Zo blijft de rest van VLAN 50 geblokkeerd. Omdat de regel op één IP-adres geldt, heeft de desktop-pc een vast adres buiten de DHCP-range.
-- **Poort 8006 als eigen service.** De Proxmox-webinterface draait niet op HTTP of HTTPS (80 en 443). Die heb ik dus niet nodig en laat ik weg.
+- **Poort 8006 als eigen service.** De Proxmox-webinterface draait op HTTPS, maar op poort 8006 in plaats van 443. De standaardservices HTTP en HTTPS (80 en 443) dekken dat dus niet. Die heb ik niet nodig en laat ik weg.
 - **NAT uit**, omdat dit intern verkeer is. Logging staat aan, zodat ik zie wat er gebeurt.
 
 ## Wat misging
@@ -52,8 +52,8 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 
 - [x] Ping van de desktop-pc naar `10.0.10.10` werkt.
 - [x] Het log (*Log & Report → Forward Traffic*) toont Accept voor deze regel.
-- [ ] `https://10.0.10.10:8006` opent de Proxmox-webinterface.
-- [ ] Ping naar een ander adres in het lab (bijvoorbeeld `10.0.20.10`) is geblokkeerd.
+- [x] `https://10.0.10.10:8006` opent de Proxmox-webinterface.
+- [x] Verkeer naar een ander adres in het lab (`10.0.20.10`) is geblokkeerd, zie het log.
 - [ ] `https://10.0.10.1` (FortiGate-beheer) laadt niet vanaf de desktop-pc.
 
 ![Ping van de desktop-pc naar Proxmox](images/desktop-proxmox-06-ping.png)
