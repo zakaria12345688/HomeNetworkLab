@@ -46,6 +46,7 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 - **De Proxmox-poort staat niet in de standaardlijst** van services, dus ik moest hem zelf aanmaken.
 - **Mijn pc had een DHCP-adres.** In het log zag ik als bron `10.0.50.100` in plaats van `10.0.50.10`. Mijn regel gold alleen voor `.10`, dus het verkeer viel door naar de deny-regel. Ik heb de pc een vast IP gegeven (`10.0.50.10`), en daarna werkte de regel.
 
+  ![Deny in het log: bron 10.0.50.100](images/desktop-proxmox-05-deny-dhcp-adres.png)
 
 - **Eerst zag ik geen Accept in het log.** Bij een nieuwe regel staat logging op *Security Events*, en dan logt een toegestane sessie niet. Ik heb *Log Allowed Traffic* op *All Sessions* gezet.
 
@@ -54,7 +55,7 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 - [x] Ping van de desktop-pc naar `10.0.10.10` werkt.
 - [x] Het log (*Log & Report → Forward Traffic*) toont Accept voor deze regel.
 - [ ] `https://10.0.10.10:8006` opent de Proxmox-webinterface.
-- [ ] Ping naar een adres in VLAN 20 is geblokkeerd.
+- [ ] Ping naar een ander adres in het lab (bijvoorbeeld `10.0.20.10`) is geblokkeerd.
 - [ ] `https://10.0.10.1` (FortiGate-beheer) laadt niet vanaf de desktop-pc.
 
 ![Ping van de desktop-pc naar Proxmox](images/desktop-proxmox-06-ping.png)
@@ -63,6 +64,7 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 
 ![Log met Accept voor Desktop-naar-Proxmox](images/desktop-proxmox-08-log-accept.png)
 
+![Log met Deny voor verkeer naar een ander adres in het lab](images/desktop-proxmox-09-log-deny.png)
 
 ## Risico en later
 
