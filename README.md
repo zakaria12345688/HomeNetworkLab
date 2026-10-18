@@ -48,7 +48,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 
 DHCP: de FortiGate deelt adressen uit in VLAN 30, 40 en 50. VLAN 10 en 20 hebben vaste IP's: Proxmox `10.0.10.10`, AD `10.0.20.10`, Linux `10.0.20.20`, Zabbix `10.0.20.30`. Clients in VLAN 30 krijgen de Windows Server (`10.0.20.10`) als DNS-server, tijdelijk `1.1.1.1` totdat Active Directory draait.
 
-Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab.
+Alle apparaten hangen achter de FortiGate. Er komt één kabel van de modem binnen (naar WAN1). De DMZ-poort van de FortiGate is een trunk naar poort 1 van de switch. De desktop-pc zit in een eigen VLAN en blijft los van het lab, op één uitzondering na: hij mag Proxmox beheren (zie [uitzondering](docs/desktop-naar-proxmox.md)).
 
 ### Switchpoorten (TL-SG108E)
 
@@ -103,6 +103,7 @@ Proxmox VE 9.2, Windows Server 2025 en Windows 11 (evaluatieversies), Ubuntu Ser
 |---|---|
 | [Netwerkontwerp](docs/netwerk.md) | VLAN-plan, IP-schema, poortindeling, trunk en access, firewallbeleid |
 | [FortiGate](docs/fortigate.md) | Configuratie met screenshots en de gemaakte keuzes |
+| [Desktop naar Proxmox](docs/desktop-naar-proxmox.md) | Bewuste uitzondering in het firewallbeleid, met reden |
 | [Proxmox](docs/proxmox.md) | Installatie, VLAN-aware bridge, virtuele machines |
 | VPN (nog te schrijven) | Tailscale-configuratie, later IPsec op de FortiGate |
 | [Problemen en oplossingen](docs/troubleshooting.md) | Wat misging en hoe het is opgelost |

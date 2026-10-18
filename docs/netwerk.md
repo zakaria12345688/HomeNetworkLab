@@ -160,6 +160,7 @@ Opmerkingen bij het beleid:
 - Regel 1 en 2 houden Thuis (VLAN 50) volledig los van het lab, in beide richtingen. Ze staan bovenaan, zodat geen enkele toestaan-regel eronder dit kan omzeilen. Daardoor kan ook Beheer niet bij VLAN 50.
 - Antwoordverkeer op toegestane verbindingen wordt automatisch doorgelaten (stateful), daarvoor is geen aparte regel nodig.
 - Naast deze regels staat bovenaan de regel `Intern-noodtoegang` (interne poorten naar wan1, NAT aan). Die is bedoeld voor het bouwen van het lab en wordt later uitgezet of verwijderd. De beheertoegang op de interne interface (`192.168.1.99`) blijft als fysieke noodtoegang bestaan zolang ik dat wil.
+- Er staat één bewuste uitzondering boven de deny-regels: `Desktop-naar-Proxmox` (alleen `10.0.50.10` naar `10.0.10.10`, services PING, SSH en TCP 8006). Zie [desktop-naar-proxmox.md](desktop-naar-proxmox.md). Ik verwijder deze regel zodra de IPsec-VPN werkt.
 - Regel 10 is alleen actief in fase 2. De VPN heeft geen toegang tot Gasten (VLAN 40) en Thuis (VLAN 50).
 - Tailscale (fase 1) valt buiten dit beleid. Het verkeer gaat tussen de laptop en de Proxmox-host via een uitgaande verbinding, toegestaan door regel 4.
 - DHCP-verkeer van de clients naar de FortiGate zelf hoeft niet in het beleid, omdat de FortiGate dat zelf afhandelt.

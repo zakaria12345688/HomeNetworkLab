@@ -79,6 +79,10 @@ De oranje driehoekjes naast de regels komen doordat de VLAN-interfaces nog down 
 
 `Clients-naar-servers` laat VLAN 30 naar VLAN 20 door, met NAT uit en logging aan. De hit count is 0, want er is nog geen verkeer. De service staat voorlopig op `ALL`. Zodra Active Directory draait, beperk ik dit tot wat echt nodig is: DNS, Kerberos, LDAP en SMB.
 
+## 6. Uitzondering: desktop-pc naar Proxmox
+
+Ik heb één regel toegevoegd waarmee de desktop-pc (`10.0.50.10`) Proxmox (`10.0.10.10`) kan beheren. Dat is een bewuste uitzondering op "Thuis blijft los van het lab", zolang mijn werklaptop nog geen VPN naar het lab heeft. De regel staat boven de deny-regels en is beperkt tot PING, SSH en poort 8006. Details, keuzes en tests staan in [desktop-naar-proxmox.md](desktop-naar-proxmox.md).
+
 ## Nog te doen
 
 - Op de interne interface FMG-Access en Security Fabric Connection uitzetten.
@@ -86,5 +90,6 @@ De oranje driehoekjes naast de regels komen doordat de VLAN-interfaces nog down 
 - Testen met de desktop-pc op poort 4: adres `10.0.50.x`, ping naar de gateway en naar internet, en een geblokkeerde verbinding terugzien in de logs.
 - Beheer vanaf VLAN 10 testen en daarna *Trusted Hosts* instellen op het admin-account (`10.0.10.0/24`). Dit doe ik pas na de test, anders sluit ik mezelf buiten.
 - `Intern-noodtoegang` uitzetten.
+- `Desktop-naar-Proxmox` verwijderen zodra de IPsec-VPN werkt.
 - DNS van VLAN 30 omzetten naar `10.0.20.10` zodra Active Directory draait.
 - IPsec-VPN (fase 2), met regel 10 in het firewallbeleid.
