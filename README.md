@@ -30,7 +30,7 @@ Deze tabel wordt bijgewerkt naarmate het project vordert.
 ## Wat er gebouwd wordt
 
 - **Netwerk:** vijf VLAN's (beheer, servers, clients, gasten, thuis) met een trunk naar de FortiGate en firewallbeleid tussen de zones.
-- **Servers:** Windows Server 2025 met Active Directory, DNS, Group Policies en een fileserver, plus een Linux-VM.
+- **Servers:** Windows Server 2025 met Active Directory, DNS en group policies, plus een Linux-VM.
 - **Virtualisatie:** Proxmox VE met een VLAN-aware bridge, zodat VM's in verschillende VLAN's op één host draaien.
 - **Monitoring en back-up:** Zabbix met meldingen en een geteste restore.
 - **Toegang op afstand:** de werklaptop verbindt via VPN. Fase 1 is Tailscale, fase 2 is IPsec op de FortiGate, gekoppeld aan Active Directory.
