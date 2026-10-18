@@ -6,7 +6,7 @@ Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan. De switch e
 
 ## 1. Beginsituatie
 
-![Dashboard](images/fortigate-01-dashboard.png)
+![Dashboard](images/fortigate-dashboard.png)
 
 De FortiGate is gebruikt gekocht. Het is een 60E met FortiOS 6.4.0, hostname `HomeFortigate`. Ik beheer hem lokaal via `https://192.168.1.99`, het standaardadres van de interne poorten. Serienummer en publiek IP heb ik onleesbaar gemaakt.
 
@@ -18,7 +18,7 @@ Keuzes:
 
 ## 2. Interfaces en VLAN's
 
-![Interfaces](images/fortigate-02-interfaces.png)
+![Interfaces](images/fortigate-interfaces.png)
 
 Ik heb de vijf VLAN's aangemaakt als subinterfaces, steeds met `10.0.<VLAN>.1/24` als gateway:
 
@@ -50,7 +50,7 @@ WAN1 krijgt van de modem een privéadres (`192.168.129.54`). De modem doet dus z
 
 ## 3. DHCP
 
-![DHCP op VLAN 30](images/fortigate-04-dhcp-vlan30.png)
+![DHCP op VLAN 30](images/fortigate-dhcp-vlan30.png)
 
 De FortiGate deelt de adressen uit in VLAN 30, 40 en 50, met de range `.100` t/m `.200` en de interface als gateway. VLAN 10 en 20 hebben vaste adressen (Proxmox en de servers).
 
@@ -60,7 +60,7 @@ De FortiGate deelt de adressen uit in VLAN 30, 40 en 50, met de range `.100` t/m
 
 ## 4. Firewallbeleid
 
-![Firewallbeleid](images/fortigate-03-firewallbeleid.png)
+![Firewallbeleid](images/fortigate-firewallbeleid.png)
 
 De volledige tabel met de regels staat in [netwerk.md](netwerk.md#firewallbeleid). Dit zijn de keuzes die ik heb gemaakt:
 
