@@ -64,7 +64,6 @@ Mijn ontwerp zegt dat Thuis (VLAN 50) los blijft van het lab. Op één punt maak
 
 ![Log met Accept voor Desktop-naar-Proxmox](images/desktop-proxmox-08-log-accept.png)
 
-![Log met Deny voor het geblokkeerde verkeer naar VLAN 20](images/desktop-proxmox-09-log-deny.png)
 
 ## Risico en later
 
