@@ -118,10 +118,6 @@ Omdat de werklaptop geen fysieke poort meer heeft, zijn er drie noodroutes:
 
 De TL-SG108E biedt VLAN's (tagged en untagged), port mirroring en QoS. Hij biedt geen configureerbare STP, geen CLI of SSH en geen 802.1X, SNMP of ACL's. Voor het oefenen van STP en EtherChannel is een tweede, volledig beheerbare switch nodig.
 
-## FortiGate
-
-Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan op de FortiGate, de switch volgt. De menu's en commando's gelden voor FortiOS 6.4, de versie die op het apparaat staat. Het apparaat heeft geen actieve licenties, dus er zijn geen FortiGuard-updates en geen support.
-
 ### Beheertoegang tot de FortiGate
 
 Van alle VLAN's mag alleen VLAN 10 (Beheer) de FortiGate beheren. De andere VLAN's krijgen geen toegang tot de webinterface of SSH. Daarnaast is er tijdelijk de interne interface als fysieke noodtoegang (zie de tabel).
