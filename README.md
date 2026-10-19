@@ -16,8 +16,8 @@ Het doel is praktijkervaring met netwerken, servers en beveiliging in één same
 |---|---|
 | Proxmox VE 9.2 op de server-laptop | Klaar |
 | Tailscale: peer-to-peer mesh-netwerk (WireGuard) voor externe toegang | Klaar |
-| FortiGate 60E: VLAN's, DHCP, firewallbeleid | Bezig |
-| VLAN's op de TL-SG108E | Bezig |
+| FortiGate 60E: VLAN's, DHCP, firewallbeleid | klaar |
+| VLAN's op de TL-SG108E | klaar |
 | Active Directory, DNS, GPO's | Gepland |
 | Windows 11-client aan het domein | Gepland |
 | Linux-VM | Gepland |
