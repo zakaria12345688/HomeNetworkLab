@@ -100,7 +100,7 @@ De werklaptop verbindt in twee fases. De twee oplossingen reiken niet even ver.
 | Firewallbeleid | Niet van toepassing, het verkeer loopt buiten de FortiGate om | Regel `VPN-naar-lab` |
 | Authenticatie | Tailscale-account | Gekoppeld aan Active Directory |
 
-**Tailscale is bewust beperkt tot de host.** Tailscale draait niet op de FortiGate en op de VM's staat het niet. Er worden geen subnet routes geadverteerd, dus de VM's, de FortiGate en de rest van het netwerk zijn via Tailscale niet bereikbaar. Een VM beheer je in fase 1 via de console in de Proxmox-webinterface. De webinterface van de FortiGate bereik je in fase 1 via een SSH-tunnel door de Proxmox-host (`ssh -L 8443:10.0.10.1:443 <gebruiker>@<tailscale-ip-host>`), waarna je `https://localhost:8443` opent. Tailscale zelf routeert dan nog steeds niets.
+**Tailscale is bewust beperkt tot de host.** Tailscale draait niet op de FortiGate en op de VM's staat het niet. Er worden geen subnet routes geadverteerd, dus de VM's, de FortiGate en de rest van het netwerk zijn via Tailscale niet bereikbaar.
 
 **De IPsec-VPN is voor het hele lab.** De tunnel eindigt op de FortiGate, dus de laptop kan daarachter de host én de VM's bereiken. Wat precies mag, bepaalt het firewallbeleid.
 
