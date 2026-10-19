@@ -114,8 +114,6 @@ Omdat de werklaptop geen fysieke poort meer heeft, zijn er drie noodroutes:
 - **Fysiek op een interne poort van de FortiGate:** zolang de interne interface beheertoegang houdt (`192.168.1.99`), kom je er met een laptop in een interne poort altijd in. Dit is een bewuste keuze en kan later worden uitgezet.
 - **Switchbeheer via poort 8:** de beheerpagina van de TL-SG108E zit op VLAN 1 en is alleen bereikbaar via poort 8. De FortiGate routeert VLAN 1 niet, dus de pagina is niet via het netwerk of de VPN te bereiken. Dat is een voordeel: de switch kan niet vanaf buiten worden beheerd.
 
-Om de switch via poort 8 te bereiken, krijgt de reserve-laptop een **vast IP in het netwerk van de switch**, bijvoorbeeld `192.168.0.10` met subnetmasker `255.255.255.0`. De standaardadres van de TL-SG108E is `192.168.0.1`. Controleer dit op jouw switch, want het kan zijn aangepast. Poort 8 blijft op VLAN 1, zodat de beheerpagina bereikbaar blijft als er bij het instellen van VLAN's iets misgaat.
-
 ## Beperkingen van de switch
 
 De TL-SG108E biedt VLAN's (tagged en untagged), port mirroring en QoS. Hij biedt geen configureerbare STP, geen CLI of SSH en geen 802.1X, SNMP of ACL's. Voor het oefenen van STP en EtherChannel is een tweede, volledig beheerbare switch nodig.
