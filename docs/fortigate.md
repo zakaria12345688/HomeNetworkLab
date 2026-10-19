@@ -2,8 +2,6 @@
 
 Hier leg ik vast hoe ik de FortiGate heb ingesteld en waarom ik bepaalde keuzes heb gemaakt. Het ontwerp zelf (VLAN-plan, IP-schema, firewallbeleid) staat in [netwerk.md](netwerk.md). Dit document laat zien hoe dat in de praktijk is uitgevoerd.
 
-Status: bezig. De VLAN-interfaces, DHCP en het firewallbeleid staan. De switch hangt eraan en de trunk naar poort 1 werkt: de desktop-pc (VLAN 50) bereikt Proxmox (VLAN 10) via de FortiGate.
-
 **Let op bij de screenshots.** De screenshots in dit document zijn genomen tijdens het bouwen en worden niet opnieuw gemaakt. De eerste tonen nog de situatie zonder switch (rode VLAN-interfaces, oranje driehoekjes). In sommige latere screenshots staan de deny-regels lager in de lijst dan het ontwerp. De uitleg staat in de [README](../README.md#let-op-bij-screenshots-en-logging).
 
 ## 1. Beginsituatie
