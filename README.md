@@ -90,6 +90,8 @@ De screenshots zijn genomen terwijl ik bezig was en worden niet opnieuw gemaakt.
 - **Volgorde van de deny-regels.** Het ontwerp zet de deny-regels voor Thuis (VLAN 50) bovenaan, zodat geen enkele toestaan-regel eronder ze kan omzeilen. In sommige screenshots staan ze lager in de lijst, onder `Thuis-internet`, en heten ze `thuis-naar-lab` en `lab-naar-thuis` (kleine letters, zonder `Deny-`). Dat werkt nu hetzelfde, omdat de regels daarboven een andere bestemming hebben en elkaar dus niet overlappen. Zodra er een regel bijkomt die wel overlapt, bijvoorbeeld de VPN-regel, moeten de deny-regels bovenaan staan. De nummers in de tabel in [netwerk.md](docs/netwerk.md#firewallbeleid) zijn de volgorde in het ontwerp, niet de policy-ID's van de FortiGate.
 - **Interfaces die rood of oranje zijn.** Op oudere screenshots zijn de VLAN-interfaces rood (down) en hebben de regels een oranje driehoekje. Dat was zo toen de switch er nog niet aan hing. Nu hangt hij er wel aan en zijn ze up.
 - **Logging.** De eigen deny-regels loggen alle sessies. De impliciete deny onderaan (alles wat nergens op past) staat standaard op de FortiGate op *Disabled* en logt dus niet. Dat heb ik zo gelaten. `Intern-noodtoegang` logt alleen UTM-events, niet alle sessies, want die regel verdwijnt later. Geblokkeerd verkeer dat door een eigen deny-regel wordt geraakt, zie je wel in het log.
+- **Vlan40.** s bedoeld voor het gastennetwerk, maar omdat er momenteel niemand mee verbonden is, wordt deze soms gewoon bij ‘Lab’ geplaatst, alsof het een VM is, terwijl dat niet het geval is.
+
 
 ## Hardware
 
