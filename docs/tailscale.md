@@ -66,7 +66,7 @@ Met `diagnose sys session filter src 10.0.10.10` en `diagnose sys session list` 
 
 ![FortiGate-sessie naar peer](images/tailscale/fortigate-sessie-wireguard.png)
 
-- `10.0.10.10:41641 -> 109.129.54.242:41641`: de host stuurt UDP van poort 41641 naar poort 41641 van een peer, dus een directe WireGuard-verbinding.
+- `10.0.10.10:41641 -> PubliekIP:41641`: de host stuurt UDP van poort 41641 naar poort 41641 van een peer, dus een directe WireGuard-verbinding.
 - `org=233016/1533` en `reply=0/0/0`: de host stuurde 1533 pakketten, maar er kwam geen antwoord terug. Daarom staat `proto_state=00`: de sessie is niet opgebouwd.
 - Op dit moment lukte de directe verbinding met deze peer dus niet (bv. omdat de peer offline is of de hole punching mislukte).
 - Ook hier is de sessie alleen uitgaand: de FortiGate heeft geen inkomende sessie of port forward nodig.
