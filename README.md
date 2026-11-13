@@ -118,7 +118,6 @@ Proxmox VE 9.2, Windows Server 2025 en Windows 11 (evaluatieversies), Ubuntu Ser
 | [Desktop naar Proxmox](docs/desktop-naar-proxmox.md) | Bewuste uitzondering in het firewallbeleid, met reden |
 | [Proxmox](docs/proxmox.md) | Installatie, VLAN-aware bridge, virtuele machines |
 | VPN (nog te schrijven) | Tailscale-configuratie, later IPsec op de FortiGate |
-| [Problemen en oplossingen](docs/troubleshooting.md) | Wat misging en hoe het is opgelost |
 
 De tekening staat in [diagrams/](diagrams/). `home-network.drawio` en `proxmox-topologie.drawio` zijn bewerkbaar in draw.io.
 
